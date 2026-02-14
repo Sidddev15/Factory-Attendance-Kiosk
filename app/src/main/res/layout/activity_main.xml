@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- Main Kiosk UI -->
+    <LinearLayout
+        android:orientation="vertical"
+        android:gravity="center"
+        android:background="#111111"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:text="FACTORY ATTENDANCE"
+            android:textColor="#FFFFFF"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="40dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:id="@+id/statusText"
+            android:text="Tap RFID Card"
+            android:textColor="#00FF00"
+            android:textSize="24sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+
+    <!-- Hidden Admin Touch Zone -->
+    <View
+        android:id="@+id/adminTouchZone"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_gravity="top|end"/>
+
+</FrameLayout>
