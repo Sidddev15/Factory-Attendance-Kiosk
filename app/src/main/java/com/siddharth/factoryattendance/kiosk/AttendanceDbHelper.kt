@@ -28,16 +28,14 @@ class AttendanceDbHelper(context: Context) :
         // --------------------
         // WORKERS
         // --------------------
-        db.execSQL(
-            """
-            CREATE TABLE IF NOT EXISTS workers (
-                id INTEGER PRIMARY KEY,
-                code TEXT NOT NULL UNIQUE,
-                display_name TEXT NOT NULL,
-                rfid_uid TEXT NOT NULL UNIQUE
-            )
-            """.trimIndent()
-        )
+        db.execSQL("""
+    CREATE TABLE IF NOT EXISTS workers (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        code TEXT NOT NULL,
+        display_name TEXT NOT NULL,
+        rfid_uid TEXT NOT NULL UNIQUE
+    )
+""")
 
         // --------------------
         // PUNCHES (WITH PHOTO)
@@ -88,6 +86,6 @@ class AttendanceDbHelper(context: Context) :
 
     companion object {
         private const val DB_NAME = "attendance.db"
-        private const val DB_VERSION = 8
+        private const val DB_VERSION = 10
     }
 }
