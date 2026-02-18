@@ -156,13 +156,13 @@ class MainActivity : AppCompatActivity() {
 
         // Keep your fixed seed list. New registrations won’t be overwritten unless UID/code matches.
         val workers = listOf(
-            Triple("EMP-001", "Pooja", "0040115284"),
-            Triple("EMP-002", "Kiran", "0040114646"),
-            Triple("EMP-003", "Pooja 2", "0040115273"),
-            Triple("EMP-004", "Munesh", "0040114657"),
-            Triple("EMP-005", "Guddi", "0040115262"),
+            Triple("EMP-001", "Neha Bhatt", "0040115284"),
+            Triple("EMP-002", "Navika", "0040114646"),
+            Triple("EMP-003", "Mansi", "0040115273"),
+            Triple("EMP-004", "Rina", "0040114657"),
+            Triple("EMP-005", "Saakhi", "0040115262"),
             Triple("EMP-006", "Rama", "0040170647"),
-            Triple("EMP-007", "Seela", "0040170746"),
+            Triple("EMP-007", "Munesh", "0040170746"),
             Triple("EMP-008", "Anjali", "0040156193"),
             Triple("EMP-009", "Neha", "0040170999"),
             Triple("EMP-010", "Rihfat", "0040053772"),
@@ -173,7 +173,21 @@ class MainActivity : AppCompatActivity() {
             Triple("EMP-015", "Sudha", "0040095806"),
             Triple("EMP-016", "Dholi", "0040105162"),
             Triple("EMP-017", "Reena", "0040105151"),
-            Triple("EMP-018", "Saakhi", "0040095784")
+            Triple("EMP-018", "Saakhi", "0040095784"),
+
+            // Permanents recovered
+            Triple("EMP-019", "Permanent 1", "0040115295"),
+            Triple("EMP-020", "Permanent 2", "0040136248"),
+            Triple("EMP-021", "Permanent 3", "0040136149"),
+
+            // Temp recovered
+            Triple("EMP-023", "Temp-023", "0040114624"),
+            Triple("EMP-024", "Temp-024", "0040136237"),
+            Triple("EMP-025", "Temp-025", "0040136160"),
+            Triple("EMP-026", "Temp-026", "0040115306"),
+
+            // Test Card
+            Triple("EMP-027", "Temp-027", "0030653028"),
         )
 
         db.beginTransaction()
@@ -209,23 +223,40 @@ class MainActivity : AppCompatActivity() {
 
     private fun getWorkerByUid(uid: String): Worker? {
         val db = dbHelper.readableDatabase
+
+        // Find worker row
         val c = db.rawQuery(
             "SELECT id, code, display_name, rfid_uid FROM workers WHERE rfid_uid = ?",
             arrayOf(uid)
         )
 
-        val worker =
-            if (c.moveToFirst())
-                Worker(
-                    id = c.getInt(0),
-                    code = c.getString(1),
-                    displayName = c.getString(2),
-                    rfidUid = c.getString(3)
-                )
-            else null
+        if (!c.moveToFirst()) {
+            c.close()
+            return null
+        }
 
+        val id = c.getInt(0)
+        val code = c.getString(1)
+        val fallbackName = c.getString(2)
+        val rfidUid = c.getString(3)
         c.close()
-        return worker
+
+        // Prefer ACTIVE assignment name (end_ts IS NULL)
+        val a = db.rawQuery(
+            """
+        SELECT display_name
+        FROM worker_assignments
+        WHERE worker_id = ? AND end_ts IS NULL
+        ORDER BY start_ts DESC
+        LIMIT 1
+        """.trimIndent(),
+            arrayOf(id.toString())
+        )
+
+        val activeName = if (a.moveToFirst()) a.getString(0) else fallbackName
+        a.close()
+
+        return Worker(id = id, code = code, displayName = activeName, rfidUid = rfidUid)
     }
 
     private fun getLastPunchForWorker(workerId: Int): Punch? {
